@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.2/.schema/devbox.schema.json",
+  "packages": {
+    "python": {
+      "version": "latest",
+      "disable_plugin": true
+    },
+    "uv": {
+      "version": "latest",
+      "disable_plugin": true
+    },
+    "go-task": {
+      "version": "latest",
+      "disable_plugin": true
+    }
+  },
+  "shell": {
+    "init_hook": [
+      "task install --force"
+    ]
+  }
+}

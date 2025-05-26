@@ -1,0 +1,54 @@
+[project]
+name = "mono"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = ["nvd[sqlite]"]
+
+[tool.uv.workspace]
+members = ["pkgs/*"]
+
+[tool.uv.sources]
+nvd = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+    "pytest-lazy-fixtures>=1.1.2",
+    "ruff>=0.11.11",
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    "D203",
+    "D212",
+    "COM812",
+    "PLC0105",
+]
+select = ["ALL"]
+
+[tool.mypy]
+strict = true
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*.py" = ["INP001", "S101"]
+
+[tool.pytest.ini_options]
+addopts = '-ra -vv --strict-config --strict-markers --import-mode=importlib'
+markers = [
+    "integration: marks tests as requiring external resource (deselect with '-m \"not integration\"')",
+]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"

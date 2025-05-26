@@ -1,0 +1,90 @@
+version: "3"
+
+tasks:
+  default:
+    cmd: task --list --sort=none
+    silent: true
+
+  all:
+    desc: Run all development tasks
+    cmds:
+      - task: install
+      - task: format:fix
+      - task: lint:fix
+      - task: ci
+    silent: true
+
+  install:
+    desc: Installs the development dependencies
+    cmd: uv sync --all-extras --dev --all-packages
+    sources:
+      - "**/pyproject.toml"
+      - "**/uv.lock"
+    silent: true
+
+  ci:
+    desc: Runs all CI tasks
+    cmds:
+      - task: format:check
+      - task: lint:check
+      - task: type:check
+      - task: test:unit
+      - task: test:integration
+    silent: true
+
+  format:fix:
+    desc: Fixes all formatting issues
+    cmd: uv run ruff format .
+    deps:
+      - task: install
+    sources:
+      - "**/*.py"
+      - "**/pyproject.toml"
+
+  lint:fix:
+    desc: Fixes all linting issues
+    cmd: uv run ruff check --fix-only --no-unsafe-fixes .
+    sources:
+      - "**/*.py"
+      - "**/pyproject.toml"
+
+  format:check:
+    desc: Checks that all files conform to formatting rules
+    cmd: uv run ruff format --check .
+    sources:
+      - "**/*.py"
+      - "**/pyproject.toml"
+
+  lint:check:
+    desc: Checks that all files conform to linting rules
+    cmd: uv run ruff check .
+    sources:
+      - "**/*.py"
+      - "**/pyproject.toml"
+
+  type:check:
+    desc: Checks that all files conform to type checking rules
+    cmd: uv run mypy .
+    sources:
+      - "**/*.py"
+      - "**/pyproject.toml"
+
+  test:unit:
+    desc: Run unit tests
+    cmd: uv run pytest -m "not integration"
+    sources:
+      - "**/*.py"
+      - "**/pyproject.toml"
+
+  test:integration:
+    desc: Run slow and expensive integration tests
+    cmd: uv run pytest -m "integration"
+    sources:
+      - "**/*.py"
+      - "**/pyproject.toml"
+
+  clean:
+    desc: Cleans all development artifacts recusively from the current working directory
+    cmd: git clean -dfX .
+    silent: true
+    dir: "{{ .USER_WORKING_DIR }}"
