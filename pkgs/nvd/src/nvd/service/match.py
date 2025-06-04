@@ -1,9 +1,13 @@
+import logging
+
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from nvd.repository.nist_api.match import MatchNistapiRepository, MatchPage
 from nvd.repository.sql.match import MatchSchema, MatchSqlRepository
 from nvd.service import BaseService
 from nvd.types.match import Match, MatchId
+
+logger = logging.getLogger(__name__)
 
 
 class MatchService(BaseService[MatchId, Match, MatchPage, MatchSchema]):
@@ -13,7 +17,11 @@ class MatchService(BaseService[MatchId, Match, MatchPage, MatchSchema]):
 
     async def get(self, key: MatchId) -> Match | None:
         result = None
-        result = await self._sql_repo.get(key)
+        result = await self._sql_repo.load(key)
         if not result:
-            result = await self._api_repo.get(key)
+            logger.info("Cache miss for Match: %s", key)
+            result = await self._api_repo.load(key)
+            if result:
+                await self._sql_repo.save(result)
+        logger.info("Cache hit for Match: %s", key)
         return result

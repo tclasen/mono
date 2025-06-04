@@ -1,8 +1,10 @@
+import asyncio
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from typing import Annotated
 
 from httpx import AsyncClient
+from httpx import _status_codes as status_codes
 from pydantic import Field
 
 from nvd.repository import BaseRepository
@@ -25,7 +27,11 @@ class BaseNistApiRepository[ItemId, ItemModel: BaseModel, PageModel: BasePage](B
         if nvd_api_key:
             self._headers["apiKey"] = nvd_api_key
 
-    async def get(self, key: ItemId) -> ItemModel | None:
+    async def save(self, item: ItemModel) -> None:
+        msg = "The NIST API is read-only"
+        raise NotImplementedError(msg)
+
+    async def load(self, key: ItemId) -> ItemModel | None:
         params = dict[str, str | int](
             {
                 "resultsPerPage": 1,
@@ -40,11 +46,20 @@ class BaseNistApiRepository[ItemId, ItemModel: BaseModel, PageModel: BasePage](B
         return None
 
     async def _get_page(self, **params: str | int) -> PageModel:
-        async with AsyncClient(headers=self._headers) as client:
-            response = await client.get(self._base_url, params=params)
-        response.raise_for_status()
-        return self._page_serializer.model_validate_json(response.text)
+        while True:
+            async with AsyncClient(headers=self._headers) as client:
+                response = await client.get(self._base_url, params=params)
+            if response.status_code == status_codes.codes.TOO_MANY_REQUESTS:
+                await asyncio.sleep(6)  # https://nvd.nist.gov/developers/start-here#Best-Practices
+                continue
+            response.raise_for_status()
+            return self._page_serializer.model_validate_json(response.text)
 
     @abstractmethod
     def _items_from_page(self, page: PageModel) -> Sequence[ItemModel]:
         raise NotImplementedError
+
+    async def count(self) -> int:
+        params = {"resultsPerPage": 1}
+        page = await self._get_page(**params)
+        return page.total_results

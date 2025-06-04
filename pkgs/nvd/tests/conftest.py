@@ -10,7 +10,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 @pytest.fixture(params=[pytest.param("", marks=pytest.mark.integration)])
 def engine() -> AsyncEngine:
-    return create_async_engine("sqlite+aiosqlite:///")
+    return create_async_engine("sqlite+aiosqlite:///", echo=True)
 
 
 @pytest.fixture
