@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from sqlmodel import Field
@@ -10,6 +11,8 @@ class CveSchema(BaseSchema, table=True):
     __tablename__ = "cve"
 
     id: Annotated[str, Field(primary_key=True)]
+    published: datetime
+    last_modified: datetime
 
 
 class CveSqlRepository(BaseSqlRepository[CveId, Cve, CveSchema]):

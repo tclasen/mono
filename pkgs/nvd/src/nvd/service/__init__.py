@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Literal
 
 from nvd.repository.nist_api import BaseNistApiRepository, BasePage
 from nvd.repository.sql import BaseSchema, BaseSqlRepository
@@ -12,3 +13,9 @@ class BaseService[ItemId, ItemModel: BaseModel, PageModel: BasePage, Schema: Bas
     @abstractmethod
     async def get(self, key: ItemId) -> ItemModel | None:
         raise NotImplementedError
+
+    async def counts(self) -> dict[Literal["local", "remote"], int]:
+        return {
+            "local": await self._sql_repo.count(),
+            "remote": await self._api_repo.count(),
+        }

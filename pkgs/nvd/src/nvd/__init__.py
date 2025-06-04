@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 from uuid import UUID
 
 from nvd.service.cpe import CpeService
@@ -28,3 +28,10 @@ class Nvd:
 
     async def get_match(self, match_id: str) -> Match | None:
         return await self._match_service.get(MatchId(UUID(match_id)))
+
+    async def counts(self) -> dict[Literal["cve", "cpe", "match"], dict[Literal["local", "remote"], int]]:
+        return {
+            "cve": await self._cve_service.counts(),
+            "cpe": await self._cpe_service.counts(),
+            "match": await self._match_service.counts(),
+        }
