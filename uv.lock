@@ -158,7 +158,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "nvd", extras = ["sqlite"], editable = "pkgs/nvd" }]
+requires-dist = [{ name = "nvd", extras = ["sqlite"], editable = "libs/nvd" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -200,7 +200,7 @@ wheels = [
 [[package]]
 name = "nvd"
 version = "0.1.0"
-source = { editable = "pkgs/nvd" }
+source = { editable = "libs/nvd" }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
