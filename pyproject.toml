@@ -5,7 +5,7 @@ requires-python = ">=3.13"
 dependencies = ["nvd[sqlite]"]
 
 [tool.uv.workspace]
-members = ["pkgs/*"]
+members = ["libs/*", "apps/*"]
 
 [tool.uv.sources]
 nvd = { workspace = true }
